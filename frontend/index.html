@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEMORA — 3D Cybernetic Buffer Pool Manager</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Three.js and OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+  <!-- 3D WebGL Canvas Layer -->
+  <div id="canvas-container"></div>
+  <div class="vignette"></div>
+
+  <!-- Top Navigation & Global Telemetry Header -->
+  <header class="top-nav">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="brand-title">MEMORA <span>3D</span></div>
+      <div class="brand-badge">Saviours of Memory</div>
+    </div>
+
+    <div class="status-pills">
+      <div class="pill">
+        <span class="indicator purple" id="status-policy-dot"></span>
+        <span>Active Policy: <strong id="status-policy-text" style="color:var(--purple-neon)">LRU</strong></span>
+      </div>
+      <div class="pill">
+        <span class="indicator cyan" id="status-phase-dot"></span>
+        <span>Phase: <strong id="status-phase-text" style="color:var(--cyan-neon)">INITIALIZING</strong></span>
+      </div>
+      <div class="pill">
+        <span class="indicator green" id="status-pg-dot"></span>
+        <span>PostgreSQL 17: <strong id="status-pg-text" style="color:var(--emerald-neon)">CONNECTED</strong></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Left Controller: Workload & Replay Controls -->
+  <aside class="panel-left">
+    <div class="panel-header">
+      <span>Workload & Controls</span>
+      <span style="font-size:10px; color:var(--text-dim);">60 FPS WEBGL</span>
+    </div>
+
+    <div class="control-group">
+      <div class="control-label">Workload Pattern</div>
+      <select id="workload-select" class="cyber-select">
+        <option value="phase_shift">Multi-Phase HTAP (Scan → Zipf → Recency)</option>
+        <option value="pgbench">PostgreSQL TPC-B (pgbench) Transaction Stream</option>
+        <option value="sequential_flood">Sequential Table Scan Flood (Scan Pollution)</option>
+        <option value="zipfian">Skewed Zipfian Frequency (Frequency Stagnation)</option>
+        <option value="recency">Heavy Temporal Recency (Working Set)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <div class="control-label">
+        <span>Buffer Pool Size (B)</span>
+        <span class="val" id="val-buffer-size">64 frames</span>
+      </div>
+      <input type="range" id="slider-buffer-size" class="cyber-slider" min="16" max="128" step="16" value="64">
+    </div>
+
+    <div class="control-group">
+      <div class="control-label">
+        <span>Replay Speed</span>
+        <span class="val" id="val-speed">20 accesses/sec</span>
+      </div>
+      <input type="range" id="slider-speed" class="cyber-slider" min="1" max="100" step="5" value="20">
+    </div>
+
+    <div class="control-group">
+      <div class="control-label">
+        <span>Cost Gate Threshold (γ)</span>
+        <span class="val" id="val-gate">+0.020 (2.0%)</span>
+      </div>
+      <input type="range" id="slider-gate" class="cyber-slider" min="0.005" max="0.050" step="0.005" value="0.020">
+    </div>
+
+    <div class="btn-row">
+      <button id="btn-play" class="btn btn-primary">
+        <span>▶ Start Replay</span>
+      </button>
+      <button id="btn-step" class="btn btn-secondary">
+        <span>⏭ Step</span>
+      </button>
+      <button id="btn-reset" class="btn btn-secondary">
+        <span>↺ Reset</span>
+      </button>
+    </div>
+
+    <div style="margin-top: 10px;">
+      <button id="btn-run-python" class="btn btn-secondary" style="width:100%; justify-content:center; border-color:var(--purple-neon); color:var(--purple-neon);">
+        <span>⚡ Run Backend Benchmark (Python + PG 17)</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Right Metrics HUD: Hit Ratio, Disk I/O, Policy Ranking -->
+  <aside class="panel-right">
+    <!-- Live Hit Ratio Card -->
+    <div class="metric-card highlight">
+      <div class="metric-title">MEMORA Hit Ratio (Dynamic)</div>
+      <div class="metric-value-row">
+        <div class="metric-val green" id="metric-hit-ratio">0.00%</div>
+        <div class="metric-sub" id="metric-hit-delta">+0.0% vs Clock</div>
+      </div>
+      <div class="metric-bar-bg">
+        <div class="metric-bar-fill" id="metric-hit-bar" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <!-- Storage Disk I/O Saved -->
+    <div class="metric-card">
+      <div class="metric-title">Storage Disk I/O Reduction</div>
+      <div class="metric-value-row">
+        <div class="metric-val cyan" id="metric-io-reduction">0.0%</div>
+        <div class="metric-sub" id="metric-io-saved" style="color:var(--cyan-neon);">0 ops saved</div>
+      </div>
+      <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+        Compared directly to PostgreSQL Native Clock-Sweep
+      </div>
+    </div>
+
+    <!-- Comparative Policy Scoreboard -->
+    <div class="metric-card">
+      <div class="metric-title">Live Policy Scoreboard</div>
+      <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px; font-family:var(--font-mono); font-size:12px;">
+        <div style="display:flex; justify-content:space-between; color:var(--purple-neon); font-weight:700;">
+          <span>1. MEMORA (Adaptive)</span>
+          <span id="score-memora">0.0%</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; color:var(--text-primary);">
+          <span>2. Static LRU</span>
+          <span id="score-lru">0.0%</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; color:var(--text-primary);">
+          <span>3. PostgreSQL CLOCK</span>
+          <span id="score-clock">0.0%</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; color:var(--text-primary);">
+          <span>4. Static LFU</span>
+          <span id="score-lfu">0.0%</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; color:var(--text-muted);">
+          <span>5. Static FIFO</span>
+          <span id="score-fifo">0.0%</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 3D Canvas Legend Overlay -->
+  <div class="legend-overlay">
+    <div class="legend-item"><div class="dot cyan"></div> Clean Page</div>
+    <div class="legend-item"><div class="dot emerald"></div> Cache Hit</div>
+    <div class="legend-item"><div class="dot crimson"></div> Cache Miss / Eviction</div>
+    <div class="legend-item"><div class="dot amber"></div> Dirty Page</div>
+    <div class="legend-item"><div class="dot purple"></div> Arbiter Gyroscope</div>
+  </div>
+
+  <!-- Bottom Intelligence & Decision Timeline HUD -->
+  <footer class="panel-bottom">
+    <div class="intel-box">
+      <div class="intel-title">Shannon Access Entropy (H)</div>
+      <div class="intel-score">
+        <span id="intel-entropy">0.000</span>
+        <span style="font-size:12px; color:var(--text-muted);">/ 1.0</span>
+      </div>
+      <div class="intel-desc" id="intel-entropy-desc">Spatial access concentration</div>
+    </div>
+
+    <div class="intel-box">
+      <div class="intel-title">Jensen-Shannon Divergence (JSD)</div>
+      <div class="intel-score">
+        <span id="intel-jsd">0.000</span>
+        <span style="font-size:12px; color:var(--text-muted);">/ 1.0</span>
+      </div>
+      <div class="intel-desc" id="intel-jsd-desc">Probability distribution shift</div>
+    </div>
+
+    <div class="intel-box">
+      <div class="intel-title">Stride-1 Sequentiality</div>
+      <div class="intel-score">
+        <span id="intel-seq">0.0%</span>
+      </div>
+      <div class="intel-desc" id="intel-seq-desc">Sequential table scan detector</div>
+    </div>
+
+    <div class="intel-box">
+      <div class="intel-title">Autonomous Policy Decision Feed</div>
+      <div class="event-log-container" id="event-log">
+        <div class="log-item">
+          <span>Access 0: Initialized Buffer Pool with 64 resident frames.</span>
+          <span style="color:var(--text-dim)">Ready</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main 3D & Simulation Controller Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>

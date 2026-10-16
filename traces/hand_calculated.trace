@@ -1,0 +1,20 @@
+# Hand-calculated reference trace
+# Buffer size = 3
+# Expected behavior for LRU:
+# 1 (miss, load 1) -> [1]
+# 2 (miss, load 2) -> [1, 2]
+# 3 (miss, load 3) -> [1, 2, 3]
+# 1 (hit, touch 1) -> [2, 3, 1]
+# 4 (miss, evict 2, load 4) -> [3, 1, 4]
+# 5 (miss, evict 3, load 5) -> [1, 4, 5]
+# 2 (miss, evict 1, load 2) -> [4, 5, 2]
+# 1 (miss, evict 4, load 1) -> [5, 2, 1]
+# Total accesses = 8, hits = 1, misses = 7, hit_ratio = 1/8 = 0.125
+1
+2
+3
+1
+4
+5
+2
+1

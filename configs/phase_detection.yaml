@@ -1,0 +1,16 @@
+# Phase Detection Configuration
+
+detector:
+  window_size: 1000
+  step_size: 250
+  overlap: true
+  phase_threshold: 0.70
+  confidence_threshold: 0.60
+  min_windows_before_detect: 2
+  feature_weights:
+    jsd_frequency: 0.50
+    entropy_delta: 0.20
+    sequentiality_delta: 0.15
+    reuse_distance_delta: 0.15
+  histogram_epsilon: 1.0e-10
+  max_reuse_distance: 10000

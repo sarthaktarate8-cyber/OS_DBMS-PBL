@@ -1,0 +1,79 @@
+# Experiment Matrix Configuration
+
+global:
+  seed: 42
+  output_dir: results
+  figures_dir: figures
+  trace_sizes:
+    small: 10000
+    medium: 100000
+    large: 1000000
+
+buffer_sizes: [64, 128, 256, 512, 1024]
+policies: [lru, lfu, fifo, memora]
+
+workloads:
+  - name: recency
+    generator: recency_heavy
+    params:
+      num_pages: 1000
+      hot_fraction: 0.2
+      hot_weight: 0.8
+  - name: frequency
+    generator: frequency_heavy
+    params:
+      num_pages: 1000
+      zipf_alpha: 1.2
+  - name: sequential
+    generator: sequential
+    params:
+      num_pages: 1000
+      scan_length: 100
+  - name: random
+    generator: random_uniform
+    params:
+      num_pages: 1000
+  - name: mixed
+    generator: mixed
+    params:
+      num_pages: 1000
+      mix_weights: [0.4, 0.3, 0.2, 0.1]
+  - name: phase_changing
+    generator: phase_transition
+    params:
+      phases:
+        - type: recency_heavy
+          length: 0.33
+          num_pages: 500
+          hot_fraction: 0.2
+          hot_weight: 0.8
+        - type: sequential
+          length: 0.17
+          num_pages: 500
+          scan_length: 50
+        - type: frequency_heavy
+          length: 0.33
+          num_pages: 500
+          zipf_alpha: 1.5
+        - type: random_uniform
+          length: 0.17
+          num_pages: 500
+
+ablations:
+  - name: no_phase_detection
+    memora:
+      phase_threshold: 0.0
+  - name: no_cost_gating
+    memora:
+      minimum_net_benefit: 0.0
+  - name: no_hysteresis
+    memora:
+      hysteresis_factor: 0.0
+  - name: no_cooldown
+    memora:
+      cooldown_accesses: 0
+
+sensitivity:
+  window_sizes: [250, 500, 1000, 2000, 4000]
+  phase_thresholds: [0.30, 0.50, 0.60, 0.70, 0.80, 0.90]
+  cooldown_values: [0, 1000, 2500, 5000, 10000]

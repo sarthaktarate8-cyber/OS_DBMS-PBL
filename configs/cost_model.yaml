@@ -1,0 +1,21 @@
+# Cost-Benefit Model Configuration
+# All values are documented model assumptions.
+
+cost_model:
+  cold_miss_fraction: 0.30
+  init_overhead_fraction: 0.02
+  switch_overhead_fixed: 0.005
+  benefit_method: historical
+  heuristic_benefits:
+    recency_to_lru: 0.05
+    recency_to_lfu: -0.03
+    recency_to_fifo: -0.08
+    frequency_to_lfu: 0.06
+    frequency_to_lru: -0.01
+    frequency_to_fifo: -0.05
+    sequential_to_fifo: 0.04
+    sequential_to_lru: -0.02
+    sequential_to_lfu: -0.04
+    random_to_lru: 0.00
+    random_to_lfu: -0.01
+    random_to_fifo: -0.02

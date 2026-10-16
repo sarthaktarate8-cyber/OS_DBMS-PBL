@@ -1,0 +1,42 @@
+# MEMORA Default Configuration
+# All parameters are configurable. No magic numbers in source code.
+
+buffer:
+  size: 256
+  disk_read_latency_ms: 10.0
+  disk_write_latency_ms: 15.0
+
+policies:
+  default: lru
+  available:
+    - lru
+    - lfu
+    - fifo
+
+detector:
+  window_size: 1000
+  step_size: 250
+  overlap: true
+  phase_threshold: 0.70
+  confidence_threshold: 0.60
+  min_windows_before_detect: 2
+
+decision:
+  minimum_net_benefit: 0.020
+  cost_weight: 1.0
+  benefit_weight: 1.0
+
+adaptive:
+  cooldown_accesses: 5000
+  min_residence_accesses: 2000
+  hysteresis_factor: 0.05
+  switch_strategy: hard
+
+logging:
+  level: INFO
+  file: null
+
+experiment:
+  seed: 42
+  output_dir: results
+  figures_dir: figures
