@@ -236,9 +236,23 @@ Contributions are welcome.
 
 **Team MEMORA — Saviours of Memory**
 
-<!-- Add contributors here, e.g.:
-<a href="https://github.com/your-username"><img src="https://github.com/your-username.png" width="60" style="border-radius:50%"/></a>
--->
+## 👥 Team
+
+**Team MEMORA — Saviours of Memory**
+
+<table align="center">
+<tr>
+<td align="center" width="200">
+  <b>Shivam Kumar</b>
+</td>
+<td align="center" width="200">
+  <b>Shivam Kumar</b>
+</td>
+<td align="center" width="200">
+  <b>Rudra Varun</b>
+</td>
+</tr>
+</table>
 
 ---
 
