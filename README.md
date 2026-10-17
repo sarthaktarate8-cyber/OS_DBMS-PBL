@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/banner.svg" alt="MEMORA — Saviours of Memory" width="100%"/>
+<img src="workloads/banner.svg" alt="MEMORA — Saviours of Memory" width="100%"/>
 
 <a href="https://github.com/your-username/memora">
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=500&size=20&duration=3200&pause=900&color=22D3EE&center=true&vCenter=true&width=720&lines=Detect+workload+phase+shifts+in+real+time;Switch+LRU+%E2%86%94+LFU+%E2%86%94+FIFO+only+when+it+pays+off;Stable+under+noise%3A+hysteresis+%2B+cooldown+%2B+net-benefit+gating;Validated+against+PostgreSQL+buffer+cache+statistics" alt="Typing animation of MEMORA's key ideas"/>
