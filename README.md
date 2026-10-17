@@ -246,7 +246,7 @@ Contributions are welcome.
   <b>Shivam Kumar</b>
 </td>
 <td align="center" width="200">
-  <b>Shivam Kumar</b>
+  <b>Sarthak Tarate</b>
 </td>
 <td align="center" width="200">
   <b>Rudra Varun</b>
