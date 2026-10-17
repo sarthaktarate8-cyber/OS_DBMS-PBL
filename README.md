@@ -74,7 +74,7 @@ Hysteresis, cooldown and a minimum net-benefit gate stop thrashing on noisy work
 ## 🏗️ Architecture
 
 <div align="center">
-  <img src="assets/architecture.svg" alt="MEMORA closed-loop architecture" width="100%"/>
+  <img src="workloads/architecture.svg" alt="MEMORA closed-loop architecture" width="100%"/>
 </div>
 
 <details>
@@ -146,7 +146,7 @@ stateDiagram-v2
 ### 4 · See it in action
 
 <div align="center">
-  <img src="assets/phase-timeline.svg" alt="Illustrative hit ratio across workload phases with policy switches" width="100%"/>
+  <img src="workloads/phase-timeline.svg" alt="Illustrative hit ratio across workload phases with policy switches" width="100%"/>
 </div>
 
 > The chart above is an **illustration of the intended behaviour**. Run the demo to see real numbers from your own traces.
